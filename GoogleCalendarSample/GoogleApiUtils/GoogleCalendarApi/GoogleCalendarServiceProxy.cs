@@ -36,8 +36,8 @@ namespace GoogleApiUtils.GoogleCalendarApi
         public Calendar GetCalendar(string calendarId)
         {
             var calendarService = new CalendarService(_authenticator);
-            var calendar = calendarService.CalendarList.List().Fetch().Items.FirstOrDefault(c => c.Summary.Contains(calendarId));
-            if (calendar == null) throw new GoogleCalendarServiceProxyException("There's no calendar with that id");
+            var calendar = calendarService.CalendarList.List().Fetch().Items.FirstOrDefault(c => c.Id == calendarId);
+            if (calendar == null) throw new GoogleCalendarServiceProxyException("There's no calendar with that id: " + calendarId);
 
             return new Calendar()
                 {
@@ -71,7 +71,7 @@ namespace GoogleApiUtils.GoogleCalendarApi
                         StartDate = DateTime.Parse(c.Start.DateTime),
                         EndDate = DateTime.Parse(c.End.DateTime),
                         Description = c.Description,
-                        ColorId = Int32.Parse(c.ColorId),
+                        ColorId = (String.IsNullOrEmpty(c.ColorId) ? 0 : Int32.Parse(c.ColorId)),
                         Attendees = c.Attendees != null ? c.Attendees.Select(attendee => attendee.Email) : null
                     }).ToList();
             }
@@ -95,7 +95,7 @@ namespace GoogleApiUtils.GoogleCalendarApi
                 StartDate = DateTime.Parse(calendarEvent.Start.DateTime),
                 EndDate = DateTime.Parse(calendarEvent.End.DateTime),
                 Description = calendarEvent.Description,
-                ColorId = Int32.Parse(calendarEvent.ColorId),
+                ColorId = (String.IsNullOrEmpty(calendarEvent.ColorId) ? 0 : Int32.Parse(calendarEvent.ColorId)),
                 Attendees = calendarEvent.Attendees != null ? calendarEvent.Attendees.Select(c => c.Email) : null
             };
         }
@@ -114,7 +114,7 @@ namespace GoogleApiUtils.GoogleCalendarApi
                 Start = new EventDateTime() { DateTime = calendarEvent.StartDate.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffK") },
                 End = new EventDateTime() { DateTime = calendarEvent.EndDate.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffK") },
                 Attendees = (calendarEvent.Attendees != null) ? calendarEvent.Attendees.Select(email => new EventAttendee { Email = email }).ToList<EventAttendee>() : null,
-                ColorId = ((int)calendarEvent.ColorId).ToString()
+                ColorId = (calendarEvent.ColorId == null ? "" : calendarEvent.ColorId.Value.ToString())
             };
 
             var result = calendarService.Events.Insert(newEvent, calendar.Id).Fetch();
@@ -135,7 +135,7 @@ namespace GoogleApiUtils.GoogleCalendarApi
             toUpdate.Description = calendarEvent.Description;
             toUpdate.Start = new EventDateTime() { DateTime = calendarEvent.StartDate.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffK") };
             toUpdate.End = new EventDateTime() { DateTime = calendarEvent.EndDate.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffK") };
-            toUpdate.ColorId = ((int)calendarEvent.ColorId).ToString();
+            toUpdate.ColorId = (calendarEvent.ColorId == null ? "" : calendarEvent.ColorId.Value.ToString());
                 
             if(calendarEvent.Attendees != null && calendarEvent.Attendees.Count() > 0 && !string.IsNullOrEmpty(calendarEvent.Attendees.First()))
             {

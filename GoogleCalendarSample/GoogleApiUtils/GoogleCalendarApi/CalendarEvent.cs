@@ -25,6 +25,6 @@ namespace GoogleApiUtils.GoogleCalendarApi
 
         public IEnumerable<string> Attendees { get; set; }
 
-        public int ColorId { get; set; }
+        public int? ColorId { get; set; }
     }
 }
