@@ -71,7 +71,7 @@ namespace GoogleApiUtils.GoogleCalendarApi
                         StartDate = DateTime.Parse(c.Start.DateTime),
                         EndDate = DateTime.Parse(c.End.DateTime),
                         Description = c.Description,
-                        ColorId = (String.IsNullOrEmpty(c.ColorId) ? 0 : Int32.Parse(c.ColorId)),
+                        ColorId = (String.IsNullOrEmpty(c.ColorId) ? null : (int?)Int32.Parse(c.ColorId)),
                         Attendees = c.Attendees != null ? c.Attendees.Select(attendee => attendee.Email) : null
                     }).ToList();
             }
@@ -95,7 +95,7 @@ namespace GoogleApiUtils.GoogleCalendarApi
                 StartDate = DateTime.Parse(calendarEvent.Start.DateTime),
                 EndDate = DateTime.Parse(calendarEvent.End.DateTime),
                 Description = calendarEvent.Description,
-                ColorId = (String.IsNullOrEmpty(calendarEvent.ColorId) ? 0 : Int32.Parse(calendarEvent.ColorId)),
+                ColorId = (String.IsNullOrEmpty(calendarEvent.ColorId) ? null : (int?)Int32.Parse(calendarEvent.ColorId)),
                 Attendees = calendarEvent.Attendees != null ? calendarEvent.Attendees.Select(c => c.Email) : null
             };
         }
